@@ -8,6 +8,7 @@ import Workshop from "./pages/Workshop";
 import Pipeline from "./pages/Pipeline";
 import Studio from "./pages/Studio";
 import Agents from "./pages/Agents";
+import History from "./pages/History";
 import { ComingSoon } from "@/components/loom/ComingSoon";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -25,7 +26,7 @@ const App = () => (
             <Route path="/pipeline" element={<Pipeline />} />
             <Route path="/studio" element={<Studio />} />
             <Route path="/agents" element={<Agents />} />
-            <Route path="/history" element={<ComingSoon title="Task History" subtitle="Browse past weaves" hint="Searchable archive of completed pipeline runs with filters by world, status, and epistemic tier." />} />
+            <Route path="/history" element={<History />} />
             <Route path="/worlds" element={<ComingSoon title="Worlds" subtitle="Universe library" hint="Manage worlds, eras, and connected chronicle sources." />} />
             <Route path="/settings" element={<ComingSoon title="Settings" subtitle="Workspace preferences" hint="API keys, Centrifugo connection, Celery worker pools, webhooks." />} />
           </Route>
