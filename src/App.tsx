@@ -3,7 +3,12 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
+import { AppLayout } from "@/components/layout/AppLayout";
+import Workshop from "./pages/Workshop";
+import Pipeline from "./pages/Pipeline";
+import Studio from "./pages/Studio";
+import Agents from "./pages/Agents";
+import { ComingSoon } from "@/components/loom/ComingSoon";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -15,8 +20,15 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<Workshop />} />
+            <Route path="/pipeline" element={<Pipeline />} />
+            <Route path="/studio" element={<Studio />} />
+            <Route path="/agents" element={<Agents />} />
+            <Route path="/history" element={<ComingSoon title="Task History" subtitle="Browse past weaves" hint="Searchable archive of completed pipeline runs with filters by world, status, and epistemic tier." />} />
+            <Route path="/worlds" element={<ComingSoon title="Worlds" subtitle="Universe library" hint="Manage worlds, eras, and connected chronicle sources." />} />
+            <Route path="/settings" element={<ComingSoon title="Settings" subtitle="Workspace preferences" hint="API keys, Centrifugo connection, Celery worker pools, webhooks." />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
