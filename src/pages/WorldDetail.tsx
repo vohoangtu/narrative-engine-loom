@@ -510,3 +510,185 @@ function EntropyChart({ values }: { values: number[] }) {
     </div>
   );
 }
+
+// =================== Factions ===================
+
+const ALIGNMENT_META: Record<Faction["alignment"], { label: string; cls: string; icon: React.ReactNode }> = {
+  lawful:  { label: "Lawful",  cls: "bg-info/10 text-info border-info/20",          icon: <Shield className="h-3 w-3" /> },
+  neutral: { label: "Neutral", cls: "bg-muted text-muted-foreground border-border", icon: <Scale className="h-3 w-3" /> },
+  chaotic: { label: "Chaotic", cls: "bg-destructive/10 text-destructive border-destructive/20", icon: <Flame className="h-3 w-3" /> },
+};
+
+const RELATION_META: Record<FactionRelation, { label: string; cls: string; cell: string; icon: React.ReactNode }> = {
+  ally:    { label: "Ally",    cls: "text-success",            cell: "bg-success/15 text-success border-success/25",                icon: <Handshake className="h-3.5 w-3.5" /> },
+  neutral: { label: "Neutral", cls: "text-muted-foreground",   cell: "bg-muted text-muted-foreground border-border",                icon: <CircleDashed className="h-3.5 w-3.5" /> },
+  enemy:   { label: "Enemy",   cls: "text-destructive",        cell: "bg-destructive/15 text-destructive border-destructive/25",    icon: <Swords className="h-3.5 w-3.5" /> },
+  self:    { label: "—",       cls: "text-muted-foreground/40", cell: "bg-card border-border",                                       icon: <span className="opacity-40">·</span> },
+};
+
+const FACTION_COLOR: Record<Faction["color"], string> = {
+  primary:          "bg-primary/15 text-primary border-primary/25",
+  info:             "bg-info/15 text-info border-info/25",
+  success:          "bg-success/15 text-success border-success/25",
+  warning:          "bg-warning/15 text-warning border-warning/25",
+  destructive:      "bg-destructive/15 text-destructive border-destructive/25",
+  "agent-creative": "bg-agent-creative/15 text-agent-creative border-agent-creative/25",
+};
+
+function FactionsPanel({ worldId }: { worldId: string }) {
+  const graph = getFactionGraph(worldId);
+  if (!graph || graph.factions.length === 0) {
+    return (
+      <Card className="p-12 text-center text-sm text-muted-foreground">
+        <Users className="h-8 w-8 mx-auto mb-2 opacity-40" />
+        No factions defined for this world yet.
+      </Card>
+    );
+  }
+
+  const totalMembers = graph.factions.reduce((a, f) => a + f.members, 0);
+
+  return (
+    <div className="space-y-4">
+      {/* Faction cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {graph.factions.map((f, i) => {
+          const align = ALIGNMENT_META[f.alignment];
+          const share = (f.members / totalMembers) * 100;
+          return (
+            <motion.div
+              key={f.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, delay: i * 0.04 }}
+            >
+              <Card className="p-4 space-y-3 hover:border-primary/40 transition-colors">
+                {/* Header */}
+                <div className="flex items-start gap-3">
+                  <div className={cn("h-10 w-10 rounded-md grid place-items-center border shrink-0", FACTION_COLOR[f.color])}>
+                    <Crown className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-display text-base font-semibold leading-tight truncate">{f.name}</h4>
+                    <p className="text-[11px] italic text-muted-foreground line-clamp-1">"{f.motto}"</p>
+                  </div>
+                  <span className={cn("inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium border", align.cls)}>
+                    {align.icon}{align.label}
+                  </span>
+                </div>
+
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{f.description}</p>
+
+                {/* Leader */}
+                <div className="rounded-md border border-border bg-muted/30 p-2.5">
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1">
+                    <Crown className="h-3 w-3" /> Leader
+                  </div>
+                  <div className="text-sm font-medium leading-tight mt-0.5">{f.leader}</div>
+                  <div className="text-[11px] text-muted-foreground">{f.leaderTitle}</div>
+                </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-md border border-border bg-muted/20 px-2 py-1.5">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Members</div>
+                    <div className="text-sm font-semibold tabular-nums">{f.members.toLocaleString()}</div>
+                    <div className="text-[10px] text-muted-foreground">{share.toFixed(1)}% of world</div>
+                  </div>
+                  <div className="rounded-md border border-border bg-muted/20 px-2 py-1.5">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Influence</div>
+                    <div className="text-sm font-semibold tabular-nums">{(f.influence * 100).toFixed(0)}%</div>
+                    <div className="h-1 rounded-full bg-muted mt-1.5 overflow-hidden">
+                      <div className="h-full bg-primary rounded-full" style={{ width: `${f.influence * 100}%` }} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Relationships summary */}
+                <FactionRelationSummary graph={graph} index={i} />
+              </Card>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Relationship matrix */}
+      <Card className="p-5">
+        <div className="flex items-start justify-between mb-4 flex-wrap gap-2">
+          <div>
+            <SectionTitle icon={<Swords className="h-4 w-4" />}>Relationship matrix</SectionTitle>
+            <p className="text-xs text-muted-foreground mt-1">Row faction's stance toward column faction</p>
+          </div>
+          <div className="flex items-center gap-3 text-[11px]">
+            {(["ally", "neutral", "enemy"] as FactionRelation[]).map(r => (
+              <span key={r} className={cn("inline-flex items-center gap-1.5", RELATION_META[r].cls)}>
+                <span className={cn("inline-flex h-4 w-4 items-center justify-center rounded border", RELATION_META[r].cell)}>
+                  {RELATION_META[r].icon}
+                </span>
+                {RELATION_META[r].label}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full border-separate border-spacing-1 text-xs">
+            <thead>
+              <tr>
+                <th className="text-left text-[10px] uppercase tracking-wider text-muted-foreground font-medium pb-1 pr-2">From \ To</th>
+                {graph.factions.map(f => (
+                  <th key={f.id} className="text-left font-medium pb-1 px-2 min-w-[110px]">
+                    <span className={cn("inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md border text-[11px]", FACTION_COLOR[f.color])}>
+                      <Crown className="h-3 w-3" />{f.name}
+                    </span>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {graph.factions.map((row, i) => (
+                <tr key={row.id}>
+                  <th className="text-left font-medium pr-2 align-middle">
+                    <span className={cn("inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md border text-[11px]", FACTION_COLOR[row.color])}>
+                      <Crown className="h-3 w-3" />{row.name}
+                    </span>
+                  </th>
+                  {graph.factions.map((col, j) => {
+                    const r = graph.matrix[i][j];
+                    const meta = RELATION_META[r];
+                    return (
+                      <td key={col.id} className="p-0">
+                        <div className={cn(
+                          "h-12 rounded-md border flex items-center justify-center gap-1.5 font-medium text-[11px]",
+                          meta.cell,
+                        )}>
+                          {meta.icon}
+                          {r !== "self" && <span>{meta.label}</span>}
+                        </div>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function FactionRelationSummary({ graph, index }: { graph: ReturnType<typeof getFactionGraph> extends infer T ? Exclude<T, undefined> : never; index: number }) {
+  const row = graph.matrix[index];
+  const counts = row.reduce((acc, r) => { if (r !== "self") acc[r] = (acc[r] ?? 0) + 1; return acc; }, {} as Record<string, number>);
+  return (
+    <div className="flex items-center gap-1.5 pt-1 border-t border-border">
+      <span className="text-[10px] uppercase tracking-wider text-muted-foreground mr-1">Relations</span>
+      {(["ally", "neutral", "enemy"] as FactionRelation[]).map(r => (
+        <span key={r} className={cn("inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-[10px] font-medium tabular-nums", RELATION_META[r].cell)}>
+          {RELATION_META[r].icon}{counts[r] ?? 0}
+        </span>
+      ))}
+    </div>
+  );
+}
