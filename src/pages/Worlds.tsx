@@ -213,8 +213,8 @@ export default function Worlds() {
                           <Wand2 className="h-3.5 w-3.5" /> Quick weave
                         </Button>
                         <Button asChild size="sm" variant="outline" className="gap-1">
-                          <Link to={`/history?world=${encodeURIComponent(w.name)}`}>
-                            <ArrowUpRight className="h-3.5 w-3.5" />
+                          <Link to={`/worlds/${w.id}`}>
+                            Open <ArrowUpRight className="h-3.5 w-3.5" />
                           </Link>
                         </Button>
                       </div>
