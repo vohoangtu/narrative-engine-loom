@@ -13,12 +13,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge } from "@/components/loom/Tokens";
-import { getWorld, STATUS_MAP, TIER_MAP, type ChronicleSource } from "@/lib/worlds-data";
+import { getWorld, getFactionGraph, STATUS_MAP, TIER_MAP, type ChronicleSource, type Faction, type FactionRelation } from "@/lib/worlds-data";
 import { ALL_TASKS } from "@/lib/task-history";
 import {
   ArrowLeft, Wand2, Sparkles, Activity, Clock, Plus, RefreshCw, Trash2,
   Webhook, Database, Upload, Plug, ChevronRight, Pause, Play, Settings2,
   TrendingUp, TrendingDown, Minus, ScrollText, Users, AlertCircle,
+  Crown, Swords, Handshake, CircleDashed, Shield, Scale, Flame,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -163,6 +164,7 @@ export default function WorldDetail() {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="timeline">Timeline</TabsTrigger>
             <TabsTrigger value="entropy">Entropy</TabsTrigger>
+            <TabsTrigger value="factions">Factions</TabsTrigger>
             <TabsTrigger value="tasks">Recent tasks</TabsTrigger>
             <TabsTrigger value="sources">Chronicle sources</TabsTrigger>
           </TabsList>
