@@ -25,6 +25,28 @@ export interface ChronicleSource {
   enabled: boolean;
 }
 
+export type FactionAlignment = "lawful" | "neutral" | "chaotic";
+export type FactionRelation = "ally" | "neutral" | "enemy" | "self";
+
+export interface Faction {
+  id: string;
+  name: string;
+  leader: string;
+  leaderTitle: string;
+  members: number;
+  alignment: FactionAlignment;
+  influence: number; // 0..1
+  motto: string;
+  description: string;
+  color: "primary" | "info" | "success" | "warning" | "destructive" | "agent-creative";
+}
+
+export interface FactionGraph {
+  factions: Faction[];
+  /** matrix[i][j] = relation of factions[i] toward factions[j] */
+  matrix: FactionRelation[][];
+}
+
 export interface World {
   id: string;
   name: string;
@@ -195,4 +217,77 @@ export const TIER_MAP: Record<WorldTier, string> = {
 
 export function getWorld(id: string): World | undefined {
   return WORLDS.find(w => w.id === id);
+}
+
+// --- Factions per world ---
+
+const FACTIONS_BY_WORLD: Record<string, FactionGraph> = {
+  world_aetheria: {
+    factions: [
+      { id: "veyrith",  name: "Nhà Veyrith",  leader: "Aelric Veyrith",   leaderTitle: "Lãnh chúa Tháp Bạc", members: 4200, alignment: "lawful",  influence: 0.78, motto: "Sắt không cúi đầu",        description: "Hoàng tộc giữ Vương Miện Sắt qua ba trăm mùa đăng quang.",       color: "primary" },
+      { id: "tysan",    name: "Nhà Tysan",    leader: "Lyra Tysan",       leaderTitle: "Nữ công tước Phương Đông", members: 2850, alignment: "neutral", influence: 0.62, motto: "Gió đổi chiều, đất không đổi", description: "Đối thủ truyền kiếp của Veyrith, kiểm soát các đảo Đông.",       color: "info" },
+      { id: "maester",  name: "Hội Maester",  leader: "Corvain",          leaderTitle: "Đại Maester",          members: 380,  alignment: "lawful",  influence: 0.41, motto: "Tri thức là ánh sáng",      description: "Học giả trung lập, cố vấn cho cả các Nhà.",                       color: "agent-creative" },
+    ],
+    matrix: [
+      ["self",   "enemy",  "ally"],
+      ["enemy",  "self",   "neutral"],
+      ["ally",   "neutral","self"],
+    ],
+  },
+  world_nyxos: {
+    factions: [
+      { id: "shadow", name: "Giáo phái Bóng Tối",  leader: "Vael",           leaderTitle: "Đại Tư Tế Bóng",      members: 1820, alignment: "chaotic", influence: 0.71, motto: "Im lặng là lời cầu nguyện", description: "Thờ phụng các vị thần đã câm lặng từ Đêm Mặt Trăng Vỡ.", color: "agent-creative" },
+      { id: "lunar",  name: "Liên minh Trăng Vỡ", leader: "Mireth Sólven",  leaderTitle: "Sứ giả Mảnh Trăng",   members: 940,  alignment: "neutral", influence: 0.54, motto: "Thu thập từng mảnh",         description: "Tìm cách ghép lại Mặt Trăng để khôi phục tiếng nói thần thánh.",  color: "info" },
+    ],
+    matrix: [
+      ["self",  "enemy"],
+      ["enemy", "self"],
+    ],
+  },
+  world_helios: {
+    factions: [
+      { id: "sunking", name: "Triều đình Sun-King", leader: "Solavar III",  leaderTitle: "Sun-King",         members: 5600, alignment: "lawful",  influence: 0.84, motto: "Ánh sáng là luật",            description: "Hoàng triều thiết lập Hiệp Ước Mặt Trời.",       color: "warning" },
+      { id: "priest",  name: "Hội Tư Tế",          leader: "Maelora",       leaderTitle: "Tư Tế Tối Cao",    members: 1200, alignment: "lawful",  influence: 0.58, motto: "Lửa thanh tẩy",               description: "Quản lý các lễ hiến tế của Hiệp Ước.",            color: "destructive" },
+    ],
+    matrix: [
+      ["self",  "ally"],
+      ["ally",  "self"],
+    ],
+  },
+  world_drakmoor: {
+    factions: [
+      { id: "wyrm",    name: "Chúa tể Rồng",   leader: "Vhagar Đỏ",     leaderTitle: "Rồng Cổ Đại",        members: 47,    alignment: "chaotic", influence: 0.91, motto: "Chúng ta nhớ rất rõ",       description: "Bốn mươi bảy con rồng cổ đại vừa thức dậy sau một ngàn mùa.", color: "destructive" },
+      { id: "hunters", name: "Hội Săn Rồng",   leader: "Karn Ironbrow", leaderTitle: "Đại sư phụ",         members: 320,   alignment: "lawful",  influence: 0.48, motto: "Một mũi giáo cho mỗi cánh", description: "Thợ săn rồng cha truyền con nối, vũ khí huyền thoại.",        color: "primary" },
+      { id: "ash",     name: "Bộ tộc Tro",     leader: "Mọ Khô",        leaderTitle: "Tộc trưởng",         members: 2100,  alignment: "neutral", influence: 0.39, motto: "Sống trong tro, chết trong lửa", description: "Dân du mục sống trên các đồng tro do rồng để lại.",       color: "warning" },
+    ],
+    matrix: [
+      ["self",   "enemy",  "neutral"],
+      ["enemy",  "self",   "ally"],
+      ["neutral","ally",   "self"],
+    ],
+  },
+  world_verdan: {
+    factions: [
+      { id: "druid",  name: "Druids of Verdan",   leader: "Eldreth Lá Bạc", leaderTitle: "Đại Druid",       members: 680,  alignment: "neutral", influence: 0.73, motto: "Cây nói, ta nghe",        description: "Bảo vệ Cây Thế Giới qua mọi mùa Bloomtide.",        color: "success" },
+      { id: "bloom",  name: "Liên minh Hoa Lửa", leader: "Veska Tro Hồng", leaderTitle: "Nữ tướng",          members: 1450, alignment: "chaotic", influence: 0.51, motto: "Hoa nở trong lửa",         description: "Tin rằng Cây phải cháy để tái sinh — Druids gọi họ là dị giáo.", color: "destructive" },
+    ],
+    matrix: [
+      ["self",  "enemy"],
+      ["enemy", "self"],
+    ],
+  },
+  world_kragmir: {
+    factions: [
+      { id: "stoneborn", name: "Nhà Stoneborn", leader: "Dvarn Núi Cũ",   leaderTitle: "Vua Khắc Đá",      members: 12000, alignment: "lawful",  influence: 0.65, motto: "Đá nhớ tất cả",         description: "Hầu hết đang ngủ đông, chờ dấu hiệu sao rơi.",     color: "info" },
+      { id: "carvers",   name: "Hội Thợ Khắc",  leader: "Brenna Tay Sắt", leaderTitle: "Trưởng Hội",        members: 540,    alignment: "lawful",  influence: 0.36, motto: "Mỗi nhát búa, một lời thề", description: "Canh giữ thành phố và đánh thức Stoneborn khi tới giờ.", color: "primary" },
+    ],
+    matrix: [
+      ["self", "ally"],
+      ["ally", "self"],
+    ],
+  },
+};
+
+export function getFactionGraph(worldId: string): FactionGraph | undefined {
+  return FACTIONS_BY_WORLD[worldId];
 }
