@@ -14,112 +14,7 @@ import { ALL_TASKS } from "@/lib/task-history";
 import { Search, Plus, Sparkles, Clock, Activity, History as HistoryIcon, Globe2, Layers3, ArrowUpRight, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-
-import imgAetheria from "@/assets/world-aetheria.jpg";
-import imgNyxos from "@/assets/world-nyxos.jpg";
-import imgHelios from "@/assets/world-helios.jpg";
-import imgDrakmoor from "@/assets/world-drakmoor.jpg";
-import imgVerdan from "@/assets/world-verdan.jpg";
-import imgKragmir from "@/assets/world-kragmir.jpg";
-
-type WorldStatus = "active" | "stable" | "volatile" | "dormant";
-type WorldTier = "Chân Thực" | "Mơ Hồ" | "Huyền Sử";
-
-interface World {
-  id: string;
-  name: string;
-  era: string;
-  cover: string;
-  status: WorldStatus;
-  tier: WorldTier;
-  entropy: number;
-  description: string;
-  factions: string[];
-}
-
-const WORLDS: World[] = [
-  {
-    id: "world_aetheria",
-    name: "Aetheria",
-    era: "Age of Iron Crowns",
-    cover: imgAetheria,
-    status: "active",
-    tier: "Chân Thực",
-    entropy: 0.18,
-    description: "Một vương quốc của những hòn đảo bay, nơi các Nhà quý tộc tranh giành Vương Miện Sắt giữa các tầng mây.",
-    factions: ["Nhà Veyrith", "Nhà Tysan", "Hội Maester"],
-  },
-  {
-    id: "world_nyxos",
-    name: "Nyxos",
-    era: "Twilight Epoch",
-    cover: imgNyxos,
-    status: "volatile",
-    tier: "Mơ Hồ",
-    entropy: 0.42,
-    description: "Vương quốc hoàng hôn vĩnh cửu, nơi mặt trăng đã vỡ và các vị thần học cách im lặng.",
-    factions: ["Giáo phái Bóng Tối", "Liên minh Trăng Vỡ"],
-  },
-  {
-    id: "world_helios",
-    name: "Helios",
-    era: "Solar Concordat",
-    cover: imgHelios,
-    status: "stable",
-    tier: "Chân Thực",
-    entropy: 0.09,
-    description: "Đế quốc Mặt Trời với đền thờ vàng giữa sa mạc cháy. Hiệp ước giữ hòa bình — nhưng có cái giá.",
-    factions: ["Triều đình Sun-King", "Hội Tư Tế"],
-  },
-  {
-    id: "world_drakmoor",
-    name: "Drakmoor",
-    era: "Wyrmfire Wars",
-    cover: imgDrakmoor,
-    status: "volatile",
-    tier: "Huyền Sử",
-    entropy: 0.71,
-    description: "Vùng đất rồng lửa và đá obsidian. Sau một ngàn mùa, các con rồng đã trở lại — và chúng nhớ rất rõ.",
-    factions: ["Chúa tể Rồng", "Hội Săn Rồng", "Bộ tộc Tro"],
-  },
-  {
-    id: "world_verdan",
-    name: "Verdan",
-    era: "Bloomtide",
-    cover: imgVerdan,
-    status: "active",
-    tier: "Mơ Hồ",
-    entropy: 0.31,
-    description: "Khu rừng thần linh với Cây Thế Giới đang khô héo. Mỗi chiếc lá rụng là một lời tiên tri.",
-    factions: ["Druids of Verdan", "Liên minh Hoa Lửa"],
-  },
-  {
-    id: "world_kragmir",
-    name: "Kragmir",
-    era: "Stoneborn Era",
-    cover: imgKragmir,
-    status: "dormant",
-    tier: "Chân Thực",
-    entropy: 0.12,
-    description: "Vương quốc đá khắc trong vách núi tuyết. Người Stoneborn đã ngủ đông — nhưng các vì sao đang rơi.",
-    factions: ["Nhà Stoneborn", "Hội Thợ Khắc"],
-  },
-];
-
-const statusMap: Record<WorldStatus, { label: string; cls: string; dot: string }> = {
-  active:   { label: "Active",   cls: "bg-success/15 text-success border-success/20",       dot: "bg-success" },
-  stable:   { label: "Stable",   cls: "bg-info/15 text-info border-info/20",                dot: "bg-info" },
-  volatile: { label: "Volatile", cls: "bg-warning/15 text-warning border-warning/20",       dot: "bg-warning" },
-  dormant:  { label: "Dormant",  cls: "bg-muted text-muted-foreground border-border",       dot: "bg-muted-foreground" },
-};
-
-const tierMap: Record<WorldTier, string> = {
-  "Chân Thực": "bg-success/10 text-success border-success/20",
-  "Mơ Hồ":     "bg-warning/10 text-warning border-warning/20",
-  "Huyền Sử":  "bg-agent-creative/10 text-agent-creative border-agent-creative/20",
-};
-
-function timeAgo(s: string) { return s; }
+import { WORLDS, STATUS_MAP as statusMap, TIER_MAP as tierMap, type World } from "@/lib/worlds-data";
 
 export default function Worlds() {
   const [q, setQ] = useState("");
@@ -318,8 +213,8 @@ export default function Worlds() {
                           <Wand2 className="h-3.5 w-3.5" /> Quick weave
                         </Button>
                         <Button asChild size="sm" variant="outline" className="gap-1">
-                          <Link to={`/history?world=${encodeURIComponent(w.name)}`}>
-                            <ArrowUpRight className="h-3.5 w-3.5" />
+                          <Link to={`/worlds/${w.id}`}>
+                            Open <ArrowUpRight className="h-3.5 w-3.5" />
                           </Link>
                         </Button>
                       </div>
