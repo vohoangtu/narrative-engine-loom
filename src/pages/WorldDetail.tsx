@@ -251,6 +251,8 @@ export default function WorldDetail() {
 
           {/* Recent tasks */}
           <TabsContent value="tasks">
+
+          </TabsContent>
             <Card className="overflow-hidden">
               <div className="p-5 flex items-center justify-between border-b border-border">
                 <SectionTitle icon={<Sparkles className="h-4 w-4" />}>Recent weaves</SectionTitle>
