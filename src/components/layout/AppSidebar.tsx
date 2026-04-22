@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Workflow, BookOpenText, Sparkles, Settings2, History, Boxes } from "lucide-react";
+import { LayoutDashboard, Workflow, BookOpenText, Sparkles, Settings2, History, Boxes, BarChart3, GitBranch } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const sections = [
@@ -8,7 +8,9 @@ const sections = [
     items: [
       { to: "/", icon: LayoutDashboard, label: "Workshop" },
       { to: "/pipeline", icon: Workflow, label: "Pipeline" },
+      { to: "/pipeline/builder", icon: GitBranch, label: "Pipeline Builder" },
       { to: "/studio", icon: BookOpenText, label: "Narrative Studio" },
+      { to: "/analytics", icon: BarChart3, label: "Analytics" },
     ],
   },
   {
