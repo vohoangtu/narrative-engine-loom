@@ -41,6 +41,37 @@ export interface Faction {
   color: "primary" | "info" | "success" | "warning" | "destructive" | "agent-creative";
 }
 
+export interface FactionCharacter {
+  name: string;
+  role: string;
+  status: "alive" | "exiled" | "deceased" | "missing";
+}
+
+export interface FactionTerritory {
+  name: string;
+  type: "capital" | "fortress" | "outpost" | "sanctuary" | "ruin";
+  population: number;
+  control: number; // 0..1
+}
+
+export interface FactionEvent {
+  id: string;
+  date: string;
+  type: "battle" | "treaty" | "betrayal" | "decree" | "ritual" | "discovery";
+  title: string;
+  summary: string;
+  impact: "low" | "medium" | "high" | "catastrophic";
+}
+
+export interface FactionDetail {
+  bio: string;
+  founded: string;
+  capital: string;
+  characters: FactionCharacter[];
+  territories: FactionTerritory[];
+  events: FactionEvent[];
+}
+
 export interface FactionGraph {
   factions: Faction[];
   /** matrix[i][j] = relation of factions[i] toward factions[j] */
@@ -290,4 +321,94 @@ const FACTIONS_BY_WORLD: Record<string, FactionGraph> = {
 
 export function getFactionGraph(worldId: string): FactionGraph | undefined {
   return FACTIONS_BY_WORLD[worldId];
+}
+
+// --- Faction details (bio, characters, territories, recent events) ---
+
+const EVENT_TYPES: FactionEvent["type"][] = ["battle", "treaty", "betrayal", "decree", "ritual", "discovery"];
+const IMPACTS: FactionEvent["impact"][] = ["low", "medium", "high", "catastrophic"];
+
+function seeded(seed: string) {
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return () => {
+    h += 0x6D2B79F5;
+    let t = h;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const SAMPLE_TERRITORIES = [
+  ["Tháp Trung Tâm",       "capital",   42000, 0.95],
+  ["Pháo đài Băng",        "fortress",  8400,  0.88],
+  ["Trạm gác Phương Bắc",  "outpost",   1200,  0.62],
+  ["Đền Im Lặng",          "sanctuary", 320,   0.71],
+  ["Tàn tích Cổ",          "ruin",      0,     0.34],
+] as const;
+
+const SAMPLE_EVENT_TITLES: Record<FactionEvent["type"], string[]> = {
+  battle:    ["Trận Tuyết Đỏ", "Cuộc vây hãm Tháp Bạc", "Đụng độ ở Đèo Sương"],
+  treaty:    ["Hiệp ước Mặt Trăng Thứ Ba", "Lời thề Băng Vĩnh Cửu", "Giao kèo Sáu Đảo"],
+  betrayal:  ["Đêm Dao Găm", "Lời thề bị bẻ gãy", "Cánh cổng mở từ trong"],
+  decree:    ["Sắc lệnh Thuế Mới", "Lệnh trục xuất giáo phái", "Tuyên ngôn Phương Đông"],
+  ritual:    ["Lễ Hiến Tế Đông Chí", "Đêm Đăng Quang", "Lễ Đánh Thức"],
+  discovery: ["Phát hiện mảnh Trăng Vỡ", "Bản đồ cổ lộ diện", "Sao rơi xuống Kragmir"],
+};
+
+const SAMPLE_CHARACTER_ROLES = ["Phó tướng", "Cố vấn tối cao", "Sứ giả", "Chỉ huy thân vệ", "Mật thám trưởng", "Đại tế quan", "Học giả", "Tay kiếm số một"];
+const SAMPLE_NAMES = ["Veska", "Aldric", "Mireth", "Corvain", "Lyra", "Solavar", "Eldreth", "Karn", "Brenna", "Vael", "Dvarn", "Maelora"];
+
+export function getFactionDetail(worldId: string, factionId: string): FactionDetail | undefined {
+  const graph = FACTIONS_BY_WORLD[worldId];
+  const faction = graph?.factions.find(f => f.id === factionId);
+  if (!faction) return undefined;
+
+  const rng = seeded(`${worldId}:${factionId}`);
+  const pick = <T,>(arr: readonly T[]) => arr[Math.floor(rng() * arr.length)];
+
+  const charCount = 3 + Math.floor(rng() * 3);
+  const characters: FactionCharacter[] = Array.from({ length: charCount }, (_, i) => ({
+    name: `${pick(SAMPLE_NAMES)} ${pick(["Tay Sắt", "Lá Bạc", "Bóng Câm", "Mắt Lửa", "Chân Tro", "Núi Cũ"])}`,
+    role: pick(SAMPLE_CHARACTER_ROLES),
+    status: i === 0 ? "alive" : (pick(["alive", "alive", "alive", "exiled", "deceased", "missing"]) as FactionCharacter["status"]),
+  }));
+
+  const territoryCount = 2 + Math.floor(rng() * 3);
+  const territories: FactionTerritory[] = Array.from({ length: territoryCount }, (_, i) => {
+    const t = SAMPLE_TERRITORIES[i % SAMPLE_TERRITORIES.length];
+    const noise = (rng() - 0.5) * 0.2;
+    return {
+      name: t[0],
+      type: t[1] as FactionTerritory["type"],
+      population: Math.max(0, Math.round(t[2] * (0.6 + rng() * 0.8))),
+      control: Math.min(1, Math.max(0, t[3] + noise)),
+    };
+  });
+
+  const eventCount = 4 + Math.floor(rng() * 3);
+  const events: FactionEvent[] = Array.from({ length: eventCount }, (_, i) => {
+    const type = pick(EVENT_TYPES);
+    return {
+      id: `evt_${factionId}_${i}`,
+      date: `Y${Math.floor(rng() * 300) + 700}`,
+      type,
+      title: pick(SAMPLE_EVENT_TITLES[type]),
+      summary: "Một sự kiện đã thay đổi cán cân quyền lực và để lại dư âm trong sử ký.",
+      impact: pick(IMPACTS),
+    };
+  }).sort((a, b) => b.date.localeCompare(a.date));
+
+  return {
+    bio: `${faction.name} được thành lập bởi tổ tiên của ${faction.leader.split(" ")[0]}, mang trong mình lý tưởng "${faction.motto.toLowerCase()}". Qua nhiều thế hệ, họ trở thành một trong những thế lực ${faction.alignment === "lawful" ? "trật tự" : faction.alignment === "chaotic" ? "hỗn loạn" : "trung lập"} có ảnh hưởng nhất, kiểm soát ${(faction.influence * 100).toFixed(0)}% các quyết định lớn của thế giới.`,
+    founded: `Y${Math.floor(rng() * 400)}`,
+    capital: territories[0]?.name ?? "Không rõ",
+    characters,
+    territories,
+    events,
+  };
 }

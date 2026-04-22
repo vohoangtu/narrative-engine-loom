@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { StatusBadge } from "@/components/loom/Tokens";
 import { getWorld, getFactionGraph, STATUS_MAP, TIER_MAP, type ChronicleSource, type Faction, type FactionRelation } from "@/lib/worlds-data";
 import { ALL_TASKS } from "@/lib/task-history";
+import { FactionDrawer } from "@/components/loom/FactionDrawer";
 import {
   ArrowLeft, Wand2, Sparkles, Activity, Clock, Plus, RefreshCw, Trash2,
   Webhook, Database, Upload, Plug, ChevronRight, Pause, Play, Settings2,
@@ -537,6 +538,7 @@ const FACTION_COLOR: Record<Faction["color"], string> = {
 
 function FactionsPanel({ worldId }: { worldId: string }) {
   const graph = getFactionGraph(worldId);
+  const [openFaction, setOpenFaction] = useState<Faction | null>(null);
   if (!graph || graph.factions.length === 0) {
     return (
       <Card className="p-12 text-center text-sm text-muted-foreground">
@@ -562,7 +564,10 @@ function FactionsPanel({ worldId }: { worldId: string }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, delay: i * 0.04 }}
             >
-              <Card className="p-4 space-y-3 hover:border-primary/40 transition-colors">
+              <Card
+                className="p-4 space-y-3 hover:border-primary/40 hover:shadow-elev transition-all cursor-pointer group"
+                onClick={() => setOpenFaction(f)}
+              >
                 {/* Header */}
                 <div className="flex items-start gap-3">
                   <div className={cn("h-10 w-10 rounded-md grid place-items-center border shrink-0", FACTION_COLOR[f.color])}>
@@ -606,6 +611,9 @@ function FactionsPanel({ worldId }: { worldId: string }) {
 
                 {/* Relationships summary */}
                 <FactionRelationSummary graph={graph} index={i} />
+                <div className="text-[10px] text-primary opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1">
+                  <ChevronRight className="h-3 w-3" /> Open detail
+                </div>
               </Card>
             </motion.div>
           );
@@ -674,6 +682,13 @@ function FactionsPanel({ worldId }: { worldId: string }) {
           </table>
         </div>
       </Card>
+
+      <FactionDrawer
+        worldId={worldId}
+        faction={openFaction}
+        open={openFaction !== null}
+        onOpenChange={(o) => !o && setOpenFaction(null)}
+      />
     </div>
   );
 }
