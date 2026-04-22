@@ -41,6 +41,37 @@ export interface Faction {
   color: "primary" | "info" | "success" | "warning" | "destructive" | "agent-creative";
 }
 
+export interface FactionCharacter {
+  name: string;
+  role: string;
+  status: "alive" | "exiled" | "deceased" | "missing";
+}
+
+export interface FactionTerritory {
+  name: string;
+  type: "capital" | "fortress" | "outpost" | "sanctuary" | "ruin";
+  population: number;
+  control: number; // 0..1
+}
+
+export interface FactionEvent {
+  id: string;
+  date: string;
+  type: "battle" | "treaty" | "betrayal" | "decree" | "ritual" | "discovery";
+  title: string;
+  summary: string;
+  impact: "low" | "medium" | "high" | "catastrophic";
+}
+
+export interface FactionDetail {
+  bio: string;
+  founded: string;
+  capital: string;
+  characters: FactionCharacter[];
+  territories: FactionTerritory[];
+  events: FactionEvent[];
+}
+
 export interface FactionGraph {
   factions: Faction[];
   /** matrix[i][j] = relation of factions[i] toward factions[j] */
