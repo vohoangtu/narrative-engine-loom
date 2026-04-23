@@ -11,8 +11,11 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SAMPLE_PROSE, SAMPLE_OUTLINE } from "@/lib/loom-data";
-import { Play, Sparkles, Quote, FileText, Wand2, Eye, Download, Copy, Megaphone, Palette, BookMarked } from "lucide-react";
+import { Play, Sparkles, Quote, FileText, Wand2, Eye, Download, Copy, Megaphone, Palette, BookMarked, Users, BookOpen, MessageSquare, Feather, Clapperboard, Share2, AudioLines, Image as ImageIcon, Layers } from "lucide-react";
 import { toast } from "sonner";
+import { StoryPackTabs } from "@/components/loom/StoryPackTabs";
+import { MediaKitTabs } from "@/components/loom/MediaKitTabs";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export default function Studio() {
   const [running, setRunning] = useState(false);
@@ -20,6 +23,13 @@ export default function Studio() {
   const [pov, setPov] = useState("omniscient");
   const [tone, setTone] = useState("epic");
   const [noise, setNoise] = useState([18]);
+
+  const ARTIFACTS = [
+    { group: "Core",       items: ["Prose", "Outline", "Headline & VFX", "State", "Critic"] },
+    { group: "Story Pack", items: ["POV Variants", "Lore Codex", "Dialogue Script", "Prophecy & Verse"] },
+    { group: "Media Kit",  items: ["Storyboard", "Social Pack", "Voiceover Script", "Cover Brief"] },
+  ];
+  const totalArtifacts = ARTIFACTS.reduce((s, g) => s + g.items.length, 0);
 
   const submit = () => {
     setRunning(true);
