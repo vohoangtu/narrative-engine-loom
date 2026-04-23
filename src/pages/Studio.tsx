@@ -180,14 +180,37 @@ export default function Studio() {
             </div>
 
             <Tabs defaultValue="prose" className="w-full">
-              <div className="px-5 pt-3">
-                <TabsList>
-                  <TabsTrigger value="prose"><Quote className="h-3.5 w-3.5 mr-1.5" /> Prose</TabsTrigger>
-                  <TabsTrigger value="outline"><BookMarked className="h-3.5 w-3.5 mr-1.5" /> Outline</TabsTrigger>
-                  <TabsTrigger value="headline"><Megaphone className="h-3.5 w-3.5 mr-1.5" /> Headline & VFX</TabsTrigger>
-                  <TabsTrigger value="state"><FileText className="h-3.5 w-3.5 mr-1.5" /> State</TabsTrigger>
-                  <TabsTrigger value="critic"><Eye className="h-3.5 w-3.5 mr-1.5" /> Critic</TabsTrigger>
-                </TabsList>
+              <div className="px-5 pt-3 pb-1 border-b space-y-2">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-semibold w-20 shrink-0">Core</span>
+                    <TabsList className="h-9">
+                      <TabsTrigger value="prose" className="text-xs"><Quote className="h-3 w-3 mr-1" /> Prose</TabsTrigger>
+                      <TabsTrigger value="outline" className="text-xs"><BookMarked className="h-3 w-3 mr-1" /> Outline</TabsTrigger>
+                      <TabsTrigger value="state" className="text-xs"><FileText className="h-3 w-3 mr-1" /> State</TabsTrigger>
+                      <TabsTrigger value="critic" className="text-xs"><Eye className="h-3 w-3 mr-1" /> Critic</TabsTrigger>
+                    </TabsList>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-primary font-semibold w-20 shrink-0">Story Pack</span>
+                  <TabsList className="h-9">
+                    <TabsTrigger value="pov" className="text-xs"><Users className="h-3 w-3 mr-1" /> POV ×3</TabsTrigger>
+                    <TabsTrigger value="codex" className="text-xs"><BookOpen className="h-3 w-3 mr-1" /> Codex</TabsTrigger>
+                    <TabsTrigger value="dialogue" className="text-xs"><MessageSquare className="h-3 w-3 mr-1" /> Dialogue</TabsTrigger>
+                    <TabsTrigger value="verse" className="text-xs"><Feather className="h-3 w-3 mr-1" /> Verse</TabsTrigger>
+                  </TabsList>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-info font-semibold w-20 shrink-0">Media Kit</span>
+                  <TabsList className="h-9">
+                    <TabsTrigger value="headline" className="text-xs"><Megaphone className="h-3 w-3 mr-1" /> Headline</TabsTrigger>
+                    <TabsTrigger value="storyboard" className="text-xs"><Clapperboard className="h-3 w-3 mr-1" /> Storyboard</TabsTrigger>
+                    <TabsTrigger value="social" className="text-xs"><Share2 className="h-3 w-3 mr-1" /> Social</TabsTrigger>
+                    <TabsTrigger value="voiceover" className="text-xs"><AudioLines className="h-3 w-3 mr-1" /> Voiceover</TabsTrigger>
+                    <TabsTrigger value="cover" className="text-xs"><ImageIcon className="h-3 w-3 mr-1" /> Cover</TabsTrigger>
+                  </TabsList>
+                </div>
               </div>
 
               <TabsContent value="prose" className="m-0">
