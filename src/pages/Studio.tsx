@@ -144,6 +144,28 @@ export default function Studio() {
                   <Badge className="bg-success/15 text-success border-success/20 hover:bg-success/20">Done · 64.3s</Badge>
                   <Badge variant="outline" className="text-[10px]">Mơ Hồ · noise 0.42</Badge>
                   <Badge variant="outline" className="text-[10px]">1 revision</Badge>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Badge className="bg-primary/15 text-primary border-primary/20 hover:bg-primary/25 cursor-pointer text-[10px] gap-1">
+                        <Layers className="h-3 w-3" /> {totalArtifacts} artifacts
+                      </Badge>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-72 p-3" align="end">
+                      <div className="text-xs font-semibold mb-2">Generated artifacts</div>
+                      <div className="space-y-3">
+                        {ARTIFACTS.map((g) => (
+                          <div key={g.group}>
+                            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">{g.group}</div>
+                            <div className="flex flex-wrap gap-1">
+                              {g.items.map((it) => (
+                                <Badge key={it} variant="outline" className="text-[10px] font-normal">{it}</Badge>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <h3 className="font-display text-xl font-semibold leading-tight truncate">
                   {running ? "Streaming prose…" : "Khi Mặt Trăng Vỡ, Các Vị Thần Cũng Cúi Đầu"}
