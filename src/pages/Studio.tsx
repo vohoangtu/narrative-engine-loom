@@ -327,6 +327,9 @@ export default function Studio() {
                   <p className="text-muted-foreground italic">"Tighten the second act. The envoys' silence should feel heavier — let snow do more of the talking before the dialogue."</p>
                 </div>
               </TabsContent>
+
+              <StoryPackTabs />
+              <MediaKitTabs />
             </Tabs>
           </Card>
         </div>
