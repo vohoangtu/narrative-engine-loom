@@ -93,16 +93,25 @@ function renderCrosslinks(text: string, onJump: (id: string) => void, entries: C
 }
 
 export function StoryPackTabs() {
+  const [pov, setPov] = useState<POVVariant[]>(SAMPLE_POV_VARIANTS);
+  const [codexEntries, setCodexEntries] = useState(SAMPLE_CODEX);
+  const [dialogue, setDialogue] = useState<DialogueLine[]>(SAMPLE_DIALOGUE);
+  const [verse, setVerse] = useState(SAMPLE_VERSE);
   const [activeCodex, setActiveCodex] = useState(SAMPLE_CODEX[0].id);
-  const codex = SAMPLE_CODEX.find((e) => e.id === activeCodex) ?? SAMPLE_CODEX[0];
+  const codex = codexEntries.find((e) => e.id === activeCodex) ?? codexEntries[0];
 
   return (
     <>
       {/* POV VARIANTS */}
       <TabsContent value="pov" className="m-0">
-        <ArtifactToolbar label="Multi-POV · Wordsmith Fork × 3" payload={SAMPLE_POV_VARIANTS.map(v => `[${v.character}]\n${v.excerpt}`).join("\n\n")} />
+        <ArtifactToolbar
+          label="Multi-POV · Wordsmith Fork × 3"
+          kind="pov"
+          payload={pov.map(v => `[${v.character}]\n${v.excerpt}`).join("\n\n")}
+          onRegenerate={async () => { const r = await loomApi.generatePOV({ taskId: "tsk_7c2b41" }); setPov(r.payload); }}
+        />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-6 pb-6">
-          {SAMPLE_POV_VARIANTS.map((v) => {
+          {pov.map((v) => {
             const tone =
               v.accent === "primary" ? "bg-primary/8 border-primary/30" :
               v.accent === "warning" ? "bg-warning/8 border-warning/30" :
@@ -126,10 +135,15 @@ export function StoryPackTabs() {
 
       {/* CODEX */}
       <TabsContent value="codex" className="m-0">
-        <ArtifactToolbar label="Lore Codex · Lorekeeper" payload={SAMPLE_CODEX.map(e => `# ${e.title}\n${e.body}`).join("\n\n")} />
+        <ArtifactToolbar
+          label="Lore Codex · Lorekeeper"
+          kind="codex"
+          payload={codexEntries.map(e => `# ${e.title}\n${e.body}`).join("\n\n")}
+          onRegenerate={async () => { const r = await loomApi.generateCodex(); setCodexEntries(r.payload); }}
+        />
         <div className="grid grid-cols-12 gap-0 border-t">
           <aside className="col-span-4 border-r min-h-[420px] p-3 space-y-1 bg-muted/20">
-            {SAMPLE_CODEX.map((e) => (
+            {codexEntries.map((e) => (
               <button
                 key={e.id}
                 onClick={() => setActiveCodex(e.id)}
@@ -147,10 +161,10 @@ export function StoryPackTabs() {
             <Badge variant="outline" className="text-[10px] mb-2">{codex.type}</Badge>
             <h3 className="font-display text-2xl font-bold mb-1">{codex.title}</h3>
             <p className="text-sm text-muted-foreground italic mb-5 leading-relaxed">
-              {renderCrosslinks(codex.summary, setActiveCodex, SAMPLE_CODEX)}
+              {renderCrosslinks(codex.summary, setActiveCodex, codexEntries)}
             </p>
             <div className="prose prose-sm max-w-none text-[14px] leading-[1.85] text-foreground/90">
-              {renderCrosslinks(codex.body, setActiveCodex, SAMPLE_CODEX)}
+              {renderCrosslinks(codex.body, setActiveCodex, codexEntries)}
             </div>
           </main>
         </div>
@@ -160,10 +174,12 @@ export function StoryPackTabs() {
       <TabsContent value="dialogue" className="m-0">
         <ArtifactToolbar
           label="Dialogue Script · Playwright"
-          payload={SAMPLE_DIALOGUE.map(l => l.type === "speech" ? `${l.speaker}: ${l.text}` : `(${l.text})`).join("\n\n")}
+          kind="dialogue"
+          payload={dialogue.map(l => l.type === "speech" ? `${l.speaker}: ${l.text}` : `(${l.text})`).join("\n\n")}
+          onRegenerate={async () => { const r = await loomApi.generateDialogue(); setDialogue(r.payload); }}
         />
         <div className="px-8 py-6 max-w-3xl mx-auto font-mono text-sm leading-[1.9]">
-          {SAMPLE_DIALOGUE.map((line, i) =>
+          {dialogue.map((line, i) =>
             line.type === "direction" ? (
               <p key={i} className="text-muted-foreground italic my-4 text-[13px]">
                 ({line.text})
@@ -182,10 +198,15 @@ export function StoryPackTabs() {
 
       {/* VERSE */}
       <TabsContent value="verse" className="m-0">
-        <ArtifactToolbar label="Prophecy & Verse · Oracle" payload={SAMPLE_VERSE} />
+        <ArtifactToolbar
+          label="Prophecy & Verse · Oracle"
+          kind="verse"
+          payload={verse}
+          onRegenerate={async () => { const r = await loomApi.generateVerse(); setVerse(r.payload); }}
+        />
         <div className="px-6 py-10 bg-gradient-to-b from-muted/30 to-transparent">
           <pre className="font-display text-center text-foreground/90 text-xl leading-[2.1] whitespace-pre-wrap max-w-2xl mx-auto italic">
-{SAMPLE_VERSE}
+{verse}
           </pre>
           <div className="text-center mt-6 text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
             — Lời tiên tri của Mùa Đông Veyrith —

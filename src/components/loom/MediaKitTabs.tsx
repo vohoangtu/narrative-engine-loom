@@ -9,14 +9,46 @@ import {
   SAMPLE_SOCIAL,
   SAMPLE_VOICEOVER,
   SAMPLE_COVER_BRIEF,
+  type StoryboardPanel,
+  type SocialPack,
+  type CoverBrief,
 } from "@/lib/loom-data";
 import { useState } from "react";
+import { loomApi, ARTIFACT_ENDPOINTS, type ArtifactKind } from "@/lib/loom-api";
 import { cn } from "@/lib/utils";
 
-function ArtifactToolbar({ label, payload }: { label: string; payload: string }) {
+function ArtifactToolbar({
+  label,
+  payload,
+  kind,
+  onRegenerate,
+}: {
+  label: string;
+  payload: string;
+  kind: ArtifactKind;
+  onRegenerate: () => Promise<void> | void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const ep = ARTIFACT_ENDPOINTS[kind];
+  const handle = async () => {
+    if (busy) return;
+    setBusy(true);
+    const t = toast.loading(`POST ${ep.path}`, { description: `Agent: ${ep.agent}` });
+    try {
+      await onRegenerate();
+      toast.success(`${ep.agent} · regenerated`, { id: t, description: ep.path });
+    } catch (e) {
+      toast.error("Regeneration failed", { id: t, description: String(e) });
+    } finally {
+      setBusy(false);
+    }
+  };
   return (
     <div className="flex items-center justify-between px-6 pt-4 pb-2">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{label}</div>
+      <div className="flex items-center gap-2">
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{label}</div>
+        <Badge variant="outline" className="text-[10px] font-mono">{ep.method} {ep.path.split("/").pop()}</Badge>
+      </div>
       <div className="flex items-center gap-1">
         <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5"
           onClick={() => { navigator.clipboard.writeText(payload); toast.success("Copied"); }}>
@@ -25,9 +57,14 @@ function ArtifactToolbar({ label, payload }: { label: string; payload: string })
         <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5">
           <Download className="h-3 w-3" /> Download
         </Button>
-        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1.5"
-          onClick={() => toast.info("Regenerating…")}>
-          <RefreshCw className="h-3 w-3" /> Regenerate
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2 text-xs gap-1.5"
+          disabled={busy}
+          onClick={handle}
+        >
+          <RefreshCw className={cn("h-3 w-3", busy && "animate-spin")} /> {busy ? "Generating…" : "Regenerate"}
         </Button>
       </div>
     </div>
