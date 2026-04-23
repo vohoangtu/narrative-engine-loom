@@ -36,6 +36,11 @@ export const PIPELINE_NODES: PipelineNode[] = [
   { id: "archivist",     name: "Archivist",     vi: "Người lưu trữ", category: "output",   phase: 2, description: "Lưu trữ kết quả vào kho narrative", model: "gpt-4o-mini", avgDuration: 1.1 },
   { id: "news_anchor",   name: "News Anchor",   vi: "Người dẫn tin", category: "output",   phase: 2, description: "Tạo headline ngắn gọn, gợi mở", model: "gpt-4o-mini", avgDuration: 1.5 },
   { id: "vfx_director",  name: "VFX Director",  vi: "Giám đốc VFX",  category: "output",   phase: 2, description: "Tạo config hiệu ứng visual cho frontend", model: "gpt-4o-mini", avgDuration: 2.0 },
+  // Phase 2 — Add-on agents (Story Pack + Media Kit)
+  { id: "lorekeeper",        name: "Lorekeeper",        vi: "Người giữ truyền thuyết", category: "creative", phase: 2, description: "Sinh entry codex / wiki cho world-building", model: "claude-3.5-sonnet", avgDuration: 5.8 },
+  { id: "playwright",        name: "Playwright",        vi: "Nhà soạn kịch",            category: "creative", phase: 2, description: "Chuyển scene thành kịch bản đối thoại", model: "gpt-4o", avgDuration: 6.4 },
+  { id: "oracle",            name: "Oracle",            vi: "Tiên tri",                  category: "creative", phase: 2, description: "Sinh thơ tiên tri, ballad có vần điệu", model: "claude-3.5-sonnet", avgDuration: 4.7 },
+  { id: "social_strategist", name: "Social Strategist", vi: "Chiến lược MXH",           category: "output",   phase: 2, description: "Đóng gói output cho social distribution", model: "gpt-4o-mini", avgDuration: 3.2 },
 ];
 
 export interface TaskRun {

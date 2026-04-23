@@ -46,7 +46,7 @@ export default function Workshop() {
     <>
       <TopBar
         title="Loom Workshop"
-        subtitle="Orchestrate your narrative pipeline · 18 agents online"
+        subtitle="Orchestrate your narrative pipeline · 22 agents online"
       />
 
       <ScrollArea className="flex-1">
