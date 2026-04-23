@@ -87,17 +87,23 @@ export function MediaKitTabs() {
   const [igIndex, setIgIndex] = useState(0);
   const [socialTab, setSocialTab] = useState<"twitter" | "instagram" | "tiktok">("twitter");
   const [playing, setPlaying] = useState(false);
+  const [storyboard, setStoryboard] = useState<StoryboardPanel[]>(SAMPLE_STORYBOARD);
+  const [social, setSocial] = useState<SocialPack>(SAMPLE_SOCIAL);
+  const [voiceover, setVoiceover] = useState(SAMPLE_VOICEOVER);
+  const [cover, setCover] = useState<CoverBrief>(SAMPLE_COVER_BRIEF);
 
   return (
     <>
       {/* STORYBOARD */}
       <TabsContent value="storyboard" className="m-0">
         <ArtifactToolbar
-          label={`Storyboard · Director · ${SAMPLE_STORYBOARD.length} panels`}
-          payload={SAMPLE_STORYBOARD.map((p, i) => `Panel ${i + 1} [${p.shot}/${p.angle}] ${p.description}`).join("\n")}
+          label={`Storyboard · Director · ${storyboard.length} panels`}
+          kind="storyboard"
+          payload={storyboard.map((p, i) => `Panel ${i + 1} [${p.shot}/${p.angle}] ${p.description}`).join("\n")}
+          onRegenerate={async () => { const r = await loomApi.generateStoryboard(); setStoryboard(r.payload); }}
         />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-6 pb-6">
-          {SAMPLE_STORYBOARD.map((p, i) => (
+          {storyboard.map((p, i) => (
             <Card key={i} className="overflow-hidden border">
               <div
                 className="aspect-video relative flex items-end p-3"
@@ -121,7 +127,9 @@ export function MediaKitTabs() {
       <TabsContent value="social" className="m-0">
         <ArtifactToolbar
           label="Social Pack · Social Strategist"
-          payload={[...SAMPLE_SOCIAL.twitter, ...SAMPLE_SOCIAL.tiktok].join("\n\n")}
+          kind="social"
+          payload={[...social.twitter, ...social.tiktok].join("\n\n")}
+          onRegenerate={async () => { const r = await loomApi.generateSocial(); setSocial(r.payload); }}
         />
         <div className="px-6 pb-6">
           <div className="flex gap-1 mb-4 border-b">
@@ -146,7 +154,7 @@ export function MediaKitTabs() {
 
           {socialTab === "twitter" && (
             <div className="max-w-xl mx-auto space-y-2">
-              {SAMPLE_SOCIAL.twitter.map((tweet, i) => (
+              {social.twitter.map((tweet, i) => (
                 <div key={i} className="rounded-2xl border p-4 hover:bg-accent/30 transition-colors">
                   <div className="flex items-start gap-3">
                     <div className="h-10 w-10 rounded-full bg-gradient-primary shrink-0" />
@@ -154,7 +162,7 @@ export function MediaKitTabs() {
                       <div className="flex items-center gap-1.5 text-sm">
                         <span className="font-semibold">Aetheria Chronicle</span>
                         <span className="text-muted-foreground">@aetheria_loom</span>
-                        <span className="text-muted-foreground">· {i + 1}/{SAMPLE_SOCIAL.twitter.length}</span>
+                        <span className="text-muted-foreground">· {i + 1}/{social.twitter.length}</span>
                       </div>
                       <p className="text-sm mt-1 leading-relaxed text-foreground/90">{tweet}</p>
                     </div>
@@ -169,14 +177,14 @@ export function MediaKitTabs() {
               <div className="relative">
                 <div
                   className="aspect-square rounded-2xl flex items-end p-6 text-background"
-                  style={{ background: SAMPLE_SOCIAL.instagram[igIndex].visual }}
+                  style={{ background: social.instagram[igIndex].visual }}
                 >
                   <div className="font-display text-2xl font-bold drop-shadow-lg">
-                    {SAMPLE_SOCIAL.instagram[igIndex].caption}
+                    {social.instagram[igIndex].caption}
                   </div>
                 </div>
                 <div className="flex justify-center gap-1.5 mt-3">
-                  {SAMPLE_SOCIAL.instagram.map((_, i) => (
+                  {social.instagram.map((_, i) => (
                     <button
                       key={i}
                       onClick={() => setIgIndex(i)}
@@ -188,7 +196,7 @@ export function MediaKitTabs() {
                   ))}
                 </div>
                 <div className="text-center text-xs text-muted-foreground mt-2 font-mono">
-                  Slide {igIndex + 1} / {SAMPLE_SOCIAL.instagram.length}
+                  Slide {igIndex + 1} / {social.instagram.length}
                 </div>
               </div>
             </div>
@@ -196,7 +204,7 @@ export function MediaKitTabs() {
 
           {socialTab === "tiktok" && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {SAMPLE_SOCIAL.tiktok.map((hook, i) => (
+              {social.tiktok.map((hook, i) => (
                 <Card key={i} className="aspect-[9/16] p-5 flex flex-col justify-end bg-gradient-to-b from-foreground/5 via-transparent to-foreground/40">
                   <Badge variant="outline" className="self-start mb-2 text-[10px]">Hook v{i + 1}</Badge>
                   <p className="font-display font-bold text-lg leading-snug">{hook}</p>
@@ -209,7 +217,12 @@ export function MediaKitTabs() {
 
       {/* VOICEOVER */}
       <TabsContent value="voiceover" className="m-0">
-        <ArtifactToolbar label="Voiceover Script · SSML" payload={SAMPLE_VOICEOVER} />
+        <ArtifactToolbar
+          label="Voiceover Script · SSML"
+          kind="voiceover"
+          payload={voiceover}
+          onRegenerate={async () => { const r = await loomApi.generateVoiceover(); setVoiceover(r.payload); }}
+        />
         <div className="px-6 pb-6">
           <Card className="overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/40">
@@ -227,7 +240,7 @@ export function MediaKitTabs() {
               <Badge variant="outline" className="text-[10px]">SSML 1.1</Badge>
             </div>
             <pre className="font-mono text-xs leading-[1.9] p-4 whitespace-pre-wrap bg-card overflow-x-auto">
-              {highlightSSML(SAMPLE_VOICEOVER)}
+              {highlightSSML(voiceover)}
             </pre>
             <div className="px-4 py-3 border-t bg-muted/20">
               <div className="h-1.5 rounded-full bg-muted overflow-hidden">
@@ -240,19 +253,24 @@ export function MediaKitTabs() {
 
       {/* COVER BRIEF */}
       <TabsContent value="cover" className="m-0">
-        <ArtifactToolbar label="Cover Art Brief · Image-gen ready" payload={SAMPLE_COVER_BRIEF.prompt} />
+        <ArtifactToolbar
+          label="Cover Art Brief · Image-gen ready"
+          kind="cover"
+          payload={cover.prompt}
+          onRegenerate={async () => { const r = await loomApi.generateCover(); setCover(r.payload); }}
+        />
         <div className="px-6 pb-6 grid grid-cols-1 lg:grid-cols-5 gap-5">
           <div className="lg:col-span-3 space-y-4">
             <div>
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Prompt</div>
               <Card className="p-4 bg-muted/30">
-                <p className="text-sm leading-relaxed text-foreground/90 italic">{SAMPLE_COVER_BRIEF.prompt}</p>
+                <p className="text-sm leading-relaxed text-foreground/90 italic">{cover.prompt}</p>
               </Card>
             </div>
             <div>
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Reference moodboard</div>
               <div className="flex flex-wrap gap-2">
-                {SAMPLE_COVER_BRIEF.references.map((r) => (
+                {cover.references.map((r) => (
                   <Badge key={r} variant="secondary" className="text-xs">{r}</Badge>
                 ))}
               </div>
@@ -264,10 +282,10 @@ export function MediaKitTabs() {
           <div className="lg:col-span-2 space-y-4">
             <div>
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
-                Palette · {SAMPLE_COVER_BRIEF.aspectRatio}
+                Palette · {cover.aspectRatio}
               </div>
               <Card className="p-4 space-y-3">
-                {SAMPLE_COVER_BRIEF.palette.map((c) => (
+                {cover.palette.map((c) => (
                   <div key={c.name} className="flex items-center gap-3">
                     <div
                       className="h-10 w-10 rounded-md border shrink-0"
@@ -284,7 +302,7 @@ export function MediaKitTabs() {
             <Card
               className="aspect-[2/3] p-4 flex items-end overflow-hidden border"
               style={{
-                background: `linear-gradient(160deg, hsl(${SAMPLE_COVER_BRIEF.palette[0].hsl}), hsl(${SAMPLE_COVER_BRIEF.palette[2].hsl}))`,
+                background: `linear-gradient(160deg, hsl(${cover.palette[0].hsl}), hsl(${cover.palette[2].hsl}))`,
               }}
             >
               <div className="text-background drop-shadow-lg">
