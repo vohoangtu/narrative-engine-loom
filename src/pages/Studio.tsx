@@ -11,8 +11,11 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SAMPLE_PROSE, SAMPLE_OUTLINE } from "@/lib/loom-data";
-import { Play, Sparkles, Quote, FileText, Wand2, Eye, Download, Copy, Megaphone, Palette, BookMarked } from "lucide-react";
+import { Play, Sparkles, Quote, FileText, Wand2, Eye, Download, Copy, Megaphone, Palette, BookMarked, Users, BookOpen, MessageSquare, Feather, Clapperboard, Share2, AudioLines, Image as ImageIcon, Layers } from "lucide-react";
 import { toast } from "sonner";
+import { StoryPackTabs } from "@/components/loom/StoryPackTabs";
+import { MediaKitTabs } from "@/components/loom/MediaKitTabs";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export default function Studio() {
   const [running, setRunning] = useState(false);
@@ -20,6 +23,13 @@ export default function Studio() {
   const [pov, setPov] = useState("omniscient");
   const [tone, setTone] = useState("epic");
   const [noise, setNoise] = useState([18]);
+
+  const ARTIFACTS = [
+    { group: "Core",       items: ["Prose", "Outline", "Headline & VFX", "State", "Critic"] },
+    { group: "Story Pack", items: ["POV Variants", "Lore Codex", "Dialogue Script", "Prophecy & Verse"] },
+    { group: "Media Kit",  items: ["Storyboard", "Social Pack", "Voiceover Script", "Cover Brief"] },
+  ];
+  const totalArtifacts = ARTIFACTS.reduce((s, g) => s + g.items.length, 0);
 
   const submit = () => {
     setRunning(true);
@@ -134,6 +144,28 @@ export default function Studio() {
                   <Badge className="bg-success/15 text-success border-success/20 hover:bg-success/20">Done · 64.3s</Badge>
                   <Badge variant="outline" className="text-[10px]">Mơ Hồ · noise 0.42</Badge>
                   <Badge variant="outline" className="text-[10px]">1 revision</Badge>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Badge className="bg-primary/15 text-primary border-primary/20 hover:bg-primary/25 cursor-pointer text-[10px] gap-1">
+                        <Layers className="h-3 w-3" /> {totalArtifacts} artifacts
+                      </Badge>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-72 p-3" align="end">
+                      <div className="text-xs font-semibold mb-2">Generated artifacts</div>
+                      <div className="space-y-3">
+                        {ARTIFACTS.map((g) => (
+                          <div key={g.group}>
+                            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">{g.group}</div>
+                            <div className="flex flex-wrap gap-1">
+                              {g.items.map((it) => (
+                                <Badge key={it} variant="outline" className="text-[10px] font-normal">{it}</Badge>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <h3 className="font-display text-xl font-semibold leading-tight truncate">
                   {running ? "Streaming prose…" : "Khi Mặt Trăng Vỡ, Các Vị Thần Cũng Cúi Đầu"}
@@ -148,14 +180,37 @@ export default function Studio() {
             </div>
 
             <Tabs defaultValue="prose" className="w-full">
-              <div className="px-5 pt-3">
-                <TabsList>
-                  <TabsTrigger value="prose"><Quote className="h-3.5 w-3.5 mr-1.5" /> Prose</TabsTrigger>
-                  <TabsTrigger value="outline"><BookMarked className="h-3.5 w-3.5 mr-1.5" /> Outline</TabsTrigger>
-                  <TabsTrigger value="headline"><Megaphone className="h-3.5 w-3.5 mr-1.5" /> Headline & VFX</TabsTrigger>
-                  <TabsTrigger value="state"><FileText className="h-3.5 w-3.5 mr-1.5" /> State</TabsTrigger>
-                  <TabsTrigger value="critic"><Eye className="h-3.5 w-3.5 mr-1.5" /> Critic</TabsTrigger>
-                </TabsList>
+              <div className="px-5 pt-3 pb-1 border-b space-y-2">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-semibold w-20 shrink-0">Core</span>
+                    <TabsList className="h-9">
+                      <TabsTrigger value="prose" className="text-xs"><Quote className="h-3 w-3 mr-1" /> Prose</TabsTrigger>
+                      <TabsTrigger value="outline" className="text-xs"><BookMarked className="h-3 w-3 mr-1" /> Outline</TabsTrigger>
+                      <TabsTrigger value="state" className="text-xs"><FileText className="h-3 w-3 mr-1" /> State</TabsTrigger>
+                      <TabsTrigger value="critic" className="text-xs"><Eye className="h-3 w-3 mr-1" /> Critic</TabsTrigger>
+                    </TabsList>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-primary font-semibold w-20 shrink-0">Story Pack</span>
+                  <TabsList className="h-9">
+                    <TabsTrigger value="pov" className="text-xs"><Users className="h-3 w-3 mr-1" /> POV ×3</TabsTrigger>
+                    <TabsTrigger value="codex" className="text-xs"><BookOpen className="h-3 w-3 mr-1" /> Codex</TabsTrigger>
+                    <TabsTrigger value="dialogue" className="text-xs"><MessageSquare className="h-3 w-3 mr-1" /> Dialogue</TabsTrigger>
+                    <TabsTrigger value="verse" className="text-xs"><Feather className="h-3 w-3 mr-1" /> Verse</TabsTrigger>
+                  </TabsList>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-info font-semibold w-20 shrink-0">Media Kit</span>
+                  <TabsList className="h-9">
+                    <TabsTrigger value="headline" className="text-xs"><Megaphone className="h-3 w-3 mr-1" /> Headline</TabsTrigger>
+                    <TabsTrigger value="storyboard" className="text-xs"><Clapperboard className="h-3 w-3 mr-1" /> Storyboard</TabsTrigger>
+                    <TabsTrigger value="social" className="text-xs"><Share2 className="h-3 w-3 mr-1" /> Social</TabsTrigger>
+                    <TabsTrigger value="voiceover" className="text-xs"><AudioLines className="h-3 w-3 mr-1" /> Voiceover</TabsTrigger>
+                    <TabsTrigger value="cover" className="text-xs"><ImageIcon className="h-3 w-3 mr-1" /> Cover</TabsTrigger>
+                  </TabsList>
+                </div>
               </div>
 
               <TabsContent value="prose" className="m-0">
@@ -272,6 +327,9 @@ export default function Studio() {
                   <p className="text-muted-foreground italic">"Tighten the second act. The envoys' silence should feel heavier — let snow do more of the talking before the dialogue."</p>
                 </div>
               </TabsContent>
+
+              <StoryPackTabs />
+              <MediaKitTabs />
             </Tabs>
           </Card>
         </div>

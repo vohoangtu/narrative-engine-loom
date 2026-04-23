@@ -36,6 +36,11 @@ export const PIPELINE_NODES: PipelineNode[] = [
   { id: "archivist",     name: "Archivist",     vi: "Người lưu trữ", category: "output",   phase: 2, description: "Lưu trữ kết quả vào kho narrative", model: "gpt-4o-mini", avgDuration: 1.1 },
   { id: "news_anchor",   name: "News Anchor",   vi: "Người dẫn tin", category: "output",   phase: 2, description: "Tạo headline ngắn gọn, gợi mở", model: "gpt-4o-mini", avgDuration: 1.5 },
   { id: "vfx_director",  name: "VFX Director",  vi: "Giám đốc VFX",  category: "output",   phase: 2, description: "Tạo config hiệu ứng visual cho frontend", model: "gpt-4o-mini", avgDuration: 2.0 },
+  // Phase 2 — Add-on agents (Story Pack + Media Kit)
+  { id: "lorekeeper",        name: "Lorekeeper",        vi: "Người giữ truyền thuyết", category: "creative", phase: 2, description: "Sinh entry codex / wiki cho world-building", model: "claude-3.5-sonnet", avgDuration: 5.8 },
+  { id: "playwright",        name: "Playwright",        vi: "Nhà soạn kịch",            category: "creative", phase: 2, description: "Chuyển scene thành kịch bản đối thoại", model: "gpt-4o", avgDuration: 6.4 },
+  { id: "oracle",            name: "Oracle",            vi: "Tiên tri",                  category: "creative", phase: 2, description: "Sinh thơ tiên tri, ballad có vần điệu", model: "claude-3.5-sonnet", avgDuration: 4.7 },
+  { id: "social_strategist", name: "Social Strategist", vi: "Chiến lược MXH",           category: "output",   phase: 2, description: "Đóng gói output cho social distribution", model: "gpt-4o-mini", avgDuration: 3.2 },
 ];
 
 export interface TaskRun {
@@ -103,4 +108,202 @@ export const STATS = {
   successTrend: +1.4,
   activeAgents: 18,
   totalAgents: 18,
+};
+
+// =====================================================================
+// Story Pack & Media Kit — sample artifacts for Studio output expansion
+// =====================================================================
+
+export interface POVVariant {
+  character: string;
+  role: string;
+  accent: "primary" | "warning" | "info";
+  excerpt: string;
+}
+
+export const SAMPLE_POV_VARIANTS: POVVariant[] = [
+  {
+    character: "Lord Aelric",
+    role: "Người kế vị",
+    accent: "primary",
+    excerpt:
+      "Tuyết rơi trên vai ta như một lời thề chưa được nói. Ta không khóc cha — ta khóc cho cái triều đại mà ông để lại trong tay ta, mỏng như một lưỡi dao đã mòn.",
+  },
+  {
+    character: "Maester Corvain",
+    role: "Cố vấn già",
+    accent: "info",
+    excerpt:
+      "Ta đã chứng kiến ba lễ kế vị trong đời. Lễ này lặng nhất — và vì thế, nguy hiểm nhất. Khi các thần im lặng, con người bắt đầu nói thay họ, và lời nói của con người luôn có giá.",
+  },
+  {
+    character: "Envoy Tysan",
+    role: "Sứ giả Sáu Vương Quốc",
+    accent: "warning",
+    excerpt:
+      "Trong áo lông của ta có ba con dao và một bức thư. Bức thư là quà mừng. Những con dao là dành cho trường hợp lời chia buồn không đủ thuyết phục.",
+  },
+];
+
+export interface CodexEntry {
+  id: string;
+  type: "Faction" | "Character" | "Location" | "Artifact";
+  title: string;
+  summary: string;
+  body: string;
+}
+
+export const SAMPLE_CODEX: CodexEntry[] = [
+  {
+    id: "house_veyrith",
+    type: "Faction",
+    title: "Nhà Veyrith",
+    summary: "Gia tộc cai trị [[Tháp Bạc]] qua ba thế kỷ.",
+    body: "Nhà Veyrith được sáng lập bởi [[Aelric Đệ Nhất]], người đầu tiên đúc [[Vương Miện Sắt]]. Châm ngôn: \"Im lặng là vương quốc của ta.\" Liên minh truyền thống với [[Nhà Tysan]], thù địch với [[Hội Đồng Đỏ]].",
+  },
+  {
+    id: "silver_tower",
+    type: "Location",
+    title: "Tháp Bạc",
+    summary: "Pháo đài tổ tiên của [[Nhà Veyrith]], xây trên vách đá Bắc.",
+    body: "Tháp Bạc cao 312 bậc, mỗi bậc khắc tên một lãnh chúa đã ngồi trên ngai. Người ta nói khi tuyết phủ đỉnh tháp, các thần đang lắng nghe. Lá cờ trên đỉnh chỉ hạ xuống ba lần trong lịch sử.",
+  },
+  {
+    id: "iron_crown",
+    type: "Artifact",
+    title: "Vương Miện Sắt",
+    summary: "Biểu tượng quyền lực — nặng, lạnh, và không bao giờ sáng.",
+    body: "Đúc từ thanh kiếm gãy của kẻ thù đầu tiên của [[Nhà Veyrith]]. Mang vương miện đồng nghĩa với việc gánh tất cả những lời thề chưa hoàn thành của các đời trước. Trọng lượng: 2.4kg.",
+  },
+  {
+    id: "maester_corvain",
+    type: "Character",
+    title: "Maester Corvain",
+    summary: "Cố vấn lâu năm, chứng nhân của ba triều đại.",
+    body: "Sinh ra ở [[Đảo Học Giả]], phục vụ [[Nhà Veyrith]] từ năm 17 tuổi. Biết bảy ngôn ngữ chết. Người duy nhất biết chìa khóa của thư viện ngầm dưới [[Tháp Bạc]].",
+  },
+];
+
+export interface DialogueLine {
+  type: "direction" | "speech";
+  speaker?: string;
+  text: string;
+}
+
+export const SAMPLE_DIALOGUE: DialogueLine[] = [
+  { type: "direction", text: "Đỉnh tháp Bạc. Tuyết. AELRIC đứng quay lưng về phía cầu thang. CORVAIN xuất hiện, thở dốc." },
+  { type: "speech", speaker: "CORVAIN", text: "Ngài đã sẵn sàng chưa, thưa lãnh chúa?" },
+  { type: "direction", text: "AELRIC không quay lại. Một khoảng lặng dài. Tiếng tuyết rơi." },
+  { type: "speech", speaker: "AELRIC", text: "Sẵn sàng cho cái gì, Corvain? Cho việc trở thành vua, hay cho việc trở thành cái cớ?" },
+  { type: "speech", speaker: "CORVAIN", text: "(nhẹ giọng) Cho cả hai. Cha ngài cũng từng hỏi tôi câu đó. Bốn mươi năm trước." },
+  { type: "speech", speaker: "AELRIC", text: "Và ông trả lời sao?" },
+  { type: "speech", speaker: "CORVAIN", text: "Tôi nói: \"Một lãnh chúa không cần sẵn sàng. Chỉ cần đứng dậy khi tuyết rơi.\"" },
+  { type: "direction", text: "AELRIC quay lại. Lần đầu tiên, chúng ta thấy mặt anh — trẻ hơn ta tưởng, và mệt hơn ta sợ." },
+  { type: "speech", speaker: "AELRIC", text: "Ta sẵn sàng." },
+];
+
+export const SAMPLE_VERSE = `Khi tuyết phủ tháp, các thần ngừng nói,
+Khi gió ngừng kêu, vương miện trở nặng.
+Sáu sứ giả tới — sáu lưỡi dao chờ,
+Sáu lời chia buồn, sáu lời dối trá.
+
+Một lãnh chúa trẻ đứng trên đá lạnh,
+Bóng cha đè vai, bóng con chưa sinh.
+Mùa đông năm ấy đến sớm hơn thường —
+Vì lịch sử biết, nó không thể chờ.
+
+Nghe đi, hỡi người đang đọc dòng này,
+Im lặng của thần là khúc dạo đầu.
+Khi các vương quốc chia nhau một cái xác,
+Kẻ sống sót cuối cùng sẽ là tuyết.`;
+
+export interface StoryboardPanel {
+  shot: string;
+  angle: string;
+  description: string;
+  mood: string; // hsl color
+}
+
+export const SAMPLE_STORYBOARD: StoryboardPanel[] = [
+  { shot: "Wide",    angle: "High",      description: "Tháp Bạc giữa cơn bão tuyết. Lá cờ Veyrith hạ xuống chậm rãi.",   mood: "220 60% 25%" },
+  { shot: "Medium",  angle: "Eye-level", description: "Aelric nhìn xuống thành phố, lưng xoay về phía cầu thang.",       mood: "230 40% 35%" },
+  { shot: "Close-up",angle: "Low",       description: "Bàn tay Aelric siết quanh bao kiếm, khớp ngón tay trắng.",        mood: "0 35% 30%" },
+  { shot: "Wide",    angle: "Eye-level", description: "Sảnh đá. Sáu sứ giả đứng yên, áo lông phủ tuyết vai.",            mood: "30 25% 40%" },
+  { shot: "Insert",  angle: "Top-down",  description: "Một con dao găm thấp thoáng dưới lớp lông của Envoy Tysan.",      mood: "0 60% 35%" },
+  { shot: "Close-up",angle: "Eye-level", description: "Aelric quay lại. Lần đầu tiên, ánh mắt rõ ràng.",                  mood: "200 50% 45%" },
+];
+
+export interface SocialPack {
+  twitter: string[];
+  instagram: { caption: string; visual: string }[];
+  tiktok: string[];
+}
+
+export const SAMPLE_SOCIAL: SocialPack = {
+  twitter: [
+    "Mùa đông năm ấy đến sớm hơn thường lệ. 🧵 Một dòng truyền thừa kết thúc không bằng kiếm — mà bằng im lặng.",
+    "Khi lá cờ Nhà Veyrith hạ xuống khỏi Tháp Bạc, không một tiếng kèn. Chỉ có tuyết. Và sáu sứ giả.",
+    "Sáu vương quốc gửi sáu lời chia buồn. Trong áo lông của họ — sáu con dao găm.",
+    "\"Sẵn sàng cho cái gì? Cho việc trở thành vua, hay cho việc trở thành cái cớ?\" — Aelric Veyrith",
+    "Maester Corvain biết chìa khóa của thư viện ngầm. Ông cũng biết: triều đại này không kết thúc bằng máu, mà bằng một bức thư.",
+    "Khi các thần im lặng, con người bắt đầu nói thay họ. Lời nói của con người luôn có giá.",
+    "Đọc đầy đủ trên Aetheria Chronicle 👇",
+    "#NarrativeLoom #Aetheria #MùaĐôngVeyrith",
+  ],
+  instagram: [
+    { caption: "Tháp Bạc · Đêm kế vị",          visual: "linear-gradient(135deg, hsl(220 60% 20%), hsl(230 40% 30%))" },
+    { caption: "Sáu sứ giả · Sáu con dao",       visual: "linear-gradient(135deg, hsl(0 35% 25%), hsl(30 25% 35%))" },
+    { caption: "Aelric Veyrith · Lãnh chúa thứ 23", visual: "linear-gradient(135deg, hsl(200 50% 30%), hsl(220 40% 40%))" },
+    { caption: "Maester Corvain · Người chứng",  visual: "linear-gradient(135deg, hsl(45 30% 30%), hsl(20 25% 35%))" },
+    { caption: "Đọc toàn bộ chronicle →",        visual: "linear-gradient(135deg, hsl(280 40% 25%), hsl(220 50% 35%))" },
+  ],
+  tiktok: [
+    "POV: Cha bạn vừa mất, và sáu vương quốc gửi 'lời chia buồn' kèm dao găm 🗡️",
+    "Khi Maester nói 'Ngài đã sẵn sàng chưa?' — câu trả lời chỉ có một, dù bạn không sẵn sàng.",
+    "Ba trăm năm Nhà Veyrith. Một đêm tuyết. Bạn sẽ không tin chuyện gì xảy ra tiếp theo.",
+  ],
+};
+
+export const SAMPLE_VOICEOVER = `<speak>
+  <prosody rate="92%" pitch="-1st">
+    Mùa đông năm ấy <break time="400ms"/> đến sớm hơn thường lệ.
+  </prosody>
+  <break time="800ms"/>
+  <prosody rate="88%">
+    Khi những lá cờ của Nhà Veyrith được hạ xuống khỏi <emphasis level="moderate">tháp Bạc</emphasis>,
+    không một tiếng kèn nào vang lên —
+    <break time="500ms"/>
+    chỉ có tiếng tuyết rơi, <break time="200ms"/> đều và lạnh.
+  </prosody>
+  <break time="700ms"/>
+  <prosody pitch="-2st" rate="85%">
+    Lãnh chúa Aelric đứng trên đỉnh tháp,
+    <break time="300ms"/>
+    <emphasis level="strong">một mình</emphasis>,
+    và hiểu rằng triều đại của cha mình đã kết thúc
+    <break time="400ms"/>
+    không phải bởi lưỡi kiếm,
+    <break time="300ms"/>
+    mà bởi <emphasis level="strong">sự im lặng của các thần</emphasis>.
+  </prosody>
+</speak>`;
+
+export interface CoverBrief {
+  prompt: string;
+  palette: { name: string; hsl: string }[];
+  references: string[];
+  aspectRatio: string;
+}
+
+export const SAMPLE_COVER_BRIEF: CoverBrief = {
+  prompt:
+    "A lone young lord in dark fur cloak standing at the top of a snow-covered silver tower at dusk, back to camera, six dark figures emerging from the staircase below. Painterly, dramatic chiaroscuro, muted blues and silver, falling snow, mythic atmosphere. Inspired by Caspar David Friedrich and Frank Frazetta.",
+  palette: [
+    { name: "Iron Blue",   hsl: "220 45% 22%" },
+    { name: "Tower Silver",hsl: "210 15% 75%" },
+    { name: "Blood Mark",  hsl: "0 55% 35%" },
+    { name: "Snow Veil",   hsl: "200 25% 92%" },
+  ],
+  references: ["Wanderer above the Sea of Fog", "Death Dealer (Frazetta)", "Game of Thrones · S1 promo"],
+  aspectRatio: "2:3 (book cover)",
 };
